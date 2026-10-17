@@ -489,7 +489,7 @@ process_args(int argc, char *argv[])
                 puts("on your system; examples may include 'tty' and 'sdl'.");
                 exit(0);
             } else if (!strcmp(argv[0], "--version")) {
-                printf("NetHack Fourk version %d.%d.%d\n",
+                printf("NetHack Fourk version 4.%d.%d.%d\n",
                        VERSION_MAJOR, VERSION_MINOR, PATCHLEVEL);
                 exit(0);
             }
