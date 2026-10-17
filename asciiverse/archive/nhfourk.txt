@@ -1,0 +1,17 @@
+# What nhfourk's archive holds, beside each other at the top: the binary
+# from out/, then the files it reads at run time from the folder it is in
+# (nhdat, the game's levels and texts; the ASCII and Unicode text
+# tilesets; license, which the in-game license command shows), its man
+# page, and the licence summary, the full per-file copyright list and the
+# README. No tile images: the tty interface draws characters only. The
+# game writes nothing here: saves, options, scores and bones go to
+# nhfourk under the player's XDG data folder.
+out/nhfourk
+out/nhdat
+out/license
+out/textascii.nh4ct
+out/textunicode.nh4ct
+out/nhfourk.6
+COPYING
+copyright
+README

@@ -18,3 +18,8 @@ install_manifest.txt
 tags
 TAGS
 libnethack/util/savemap.txt
+
+# Asciiverse: build output, and the release workflow under .github
+out/
+release/
+!.github/
