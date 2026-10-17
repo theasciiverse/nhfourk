@@ -15,9 +15,11 @@ struct plselect_listitem {
     char *caption;
 };
 
-/* Compiler will not allow boolean here, because C is horrible. */
-extern int is_unlocked_role(int);
-extern int is_unlocked_race(int);
+/* libnethack defines these as returning its boolean, a signed char, which
+   is nh_bool here; declared as returning int, the caller read whatever the
+   rest of the return register held, and could offer locked roles. */
+extern nh_bool is_unlocked_role(int);
+extern nh_bool is_unlocked_race(int);
 
 static int
 is_valid_character(const struct nh_roles_info *ri, int rolenum, int racenum,
@@ -346,13 +348,13 @@ player_selection(int *out_role, int *out_race, int *out_gend, int *out_align,
         j = 0;
         /* Count unlocked roles */
         for (i = 0; i < listlen; i++)
-            if (is_unlocked_role(i))
+            if (is_unlocked_role(list[i].id))
                 j++;
         /* Pick one of those at random */
         k = rand() % j;
         j = 0;
         for (i = 0; i < listlen; i++) {
-            if (is_unlocked_role(i)) {
+            if (is_unlocked_role(list[i].id)) {
                 if (j == k)
                     randrole = list[i].id;
                 j++;
@@ -369,7 +371,7 @@ player_selection(int *out_role, int *out_race, int *out_gend, int *out_align,
             init_menulist(&menu);
 
             for (i = 0; i < listlen; i++) {
-                if (is_unlocked_role(i)) {
+                if (is_unlocked_role(list[i].id)) {
                     id = list[i].id + 1;    /* list[i].id starts at 0 */
                     thisch = tolower(*list[i].caption);
                     if (thisch == lastch)

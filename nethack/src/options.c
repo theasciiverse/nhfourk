@@ -30,7 +30,7 @@ enum extra_opttypes {
 };
 
 /* int because compiler does not permit boolean here (because C is dumb) */
-extern int is_unlocked_option(struct nh_option_desc *option);
+extern nh_bool is_unlocked_option(struct nh_option_desc *option);
 static void show_autopickup_menu(struct nh_option_desc *opt);
 
 
