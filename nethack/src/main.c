@@ -14,6 +14,11 @@
 
 #ifdef UNIX
 # include <unistd.h>
+# include <limits.h>
+# include <stdlib.h>
+#endif
+#ifdef AIMAKE_BUILDOS_darwin
+# include <mach-o/dyld.h>
 #endif
 
 #define DEFAULT_NETHACKDIR "/usr/share/NetHackFourk/"
@@ -98,6 +103,42 @@ const char *nhlogo_large[14] = {
 
 
 
+#if defined(UNIX)
+/* The folder the running executable is in, with a trailing slash, or NULL.
+   Builds that leave the data directory to run time (the GNUmakefile with an
+   empty DATADIR) read their data from there, so the game can be unpacked
+   anywhere and run in place. */
+static const char *
+executable_dir(const char *argv0)
+{
+    static char path[PATH_MAX + 1];
+    char *slash;
+    ssize_t len = -1;
+
+# if defined(AIMAKE_BUILDOS_linux)
+    len = readlink("/proc/self/exe", path, PATH_MAX);
+# elif defined(AIMAKE_BUILDOS_darwin)
+    {
+        char raw[PATH_MAX + 1];
+        uint32_t size = sizeof raw;
+
+        if (_NSGetExecutablePath(raw, &size) == 0 && realpath(raw, path))
+            len = strlen(path);
+    }
+# endif
+    if (len < 0 && argv0 && strchr(argv0, '/') && realpath(argv0, path))
+        len = strlen(path);
+    if (len <= 0)
+        return NULL;
+    path[len] = '\0';
+    slash = strrchr(path, '/');
+    if (!slash)
+        return NULL;
+    slash[1] = '\0';
+    return path;
+}
+#endif
+
 static char **
 init_game_paths(const char *argv0)
 {
@@ -120,6 +161,9 @@ init_game_paths(const char *argv0)
 
     if (!dir || !*dir)
         dir = aimake_get_option("gamesdatadir");
+
+    if (!dir || !*dir)
+        dir = executable_dir(argv0);
 
     if (!dir || !*dir)
         dir = DEFAULT_NETHACKDIR;
@@ -178,8 +222,24 @@ init_game_paths(const char *argv0)
 
     /* If the build system gave us more specific directories, use them. */
     const char *temp_path;
+#if defined(UNIX)
+    char statebuf[BUFSZ];
+#endif
 
     temp_path = aimake_get_option("gamesstatedir");
+#if defined(UNIX)
+    /* An empty state directory (the GNUmakefile with an empty STATEDIR)
+       means a single-player install: the score files, bones, logs and
+       locks go to the player's own data folder, with the saved games and
+       options, and nothing is written beside the executable. */
+    if (temp_path && !*temp_path) {
+        temp_path = NULL;
+        if (get_gamedir(CONFIG_DIR, statebuf)) {
+            temp_path = statebuf;
+            pathlist[LOCKPREFIX] = temp_path;
+        }
+    }
+#endif
     if (temp_path) {
         pathlist[BONESPREFIX] = temp_path;
         pathlist[SCOREPREFIX] = temp_path;

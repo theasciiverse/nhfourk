@@ -162,31 +162,35 @@ get_gamedir(enum game_dirs dirtype, char *buf)
     if (overrider && getgid() == getegid()) {
         snprintf(buf, BUFSZ, "%s/%s", overrider, subdir);
     } else {
-        /* look in regular location */
-        envval = getenv("XDG_CONFIG_HOME");
-        if (envval)
-            snprintf(buf, BUFSZ, "%s/NetHackFourk/%s", envval, subdir);
+        /* look in regular location: the player's data folder, as for every
+           Asciiverse title */
+        envval = getenv("XDG_DATA_HOME");
+        if (envval && *envval)
+            snprintf(buf, BUFSZ, "%s/nhfourk/%s", envval, subdir);
         else {
             envval = getenv("HOME");
             if (!envval)        /* HOME not set? just give up... */
                 return FALSE;
-            snprintf(buf, BUFSZ, "%s/.config/NetHackFourk/%s", envval, subdir);
+            snprintf(buf, BUFSZ, "%s/.local/share/nhfourk/%s", envval, subdir);
         }
     }
 
     mask = umask(0);
     if (mkdir(buf, 0755) == -1 && errno != EEXIST) {
-        /* try to create the parent directory too. This ist the only problem we
-           can fix here - permission problems etc. all requre user intervention
-           */
-        char dirbuf[BUFSZ], *basedir;
+        /* create the missing parent directories too (a fresh home may have
+           no ~/.local/share yet). This is the only problem we can fix here -
+           permission problems etc. all require user intervention */
+        char dirbuf[BUFSZ], *p;
 
         strcpy(dirbuf, buf);
-        basedir = dirname(dirbuf);
-
-        mkdir(basedir, 0755);   /* no need to check the return value: if it
-                                   doesn't work, we're screwed */
-        if (mkdir(buf, 0755) == -1) {
+        for (p = dirbuf + 1; *p; p++) {
+            if (*p != '/')
+                continue;
+            *p = '\0';
+            mkdir(dirbuf, 0755);    /* failures show up below */
+            *p = '/';
+        }
+        if (mkdir(buf, 0755) == -1 && errno != EEXIST) {
             umask(mask);
             return FALSE;
         }
