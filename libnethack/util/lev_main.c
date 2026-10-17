@@ -987,7 +987,7 @@ write_level_file(char *filename, splev * room_level, specialmaze * maze_level)
 
     lbuf[0] = '\0';
     strcat(lbuf, outprefix);
-    if ((lbuf + strlen(lbuf))[-1] == ' ')
+    if (*lbuf && (lbuf + strlen(lbuf))[-1] == ' ')
         (lbuf + strlen(lbuf))[-1] = '\0';
     strcat(lbuf, filename);
     strcat(lbuf, LEV_EXT);
