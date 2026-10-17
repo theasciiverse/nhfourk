@@ -854,7 +854,7 @@ adjust_qt_hdrs(void)
 {
     int i, j;
     long count = 0L, hdr_offset =
-        sizeof (int) + (sizeof (char) * LEN_HDR + sizeof (long)) * qt_hdr.n_hdr;
+        sizeof (int) + (sizeof (char) * LEN_HDR + sizeof (int)) * qt_hdr.n_hdr;
 
     for (i = 0; i < qt_hdr.n_hdr; i++) {
         qt_hdr.offset[i] = hdr_offset;
@@ -890,12 +890,12 @@ put_qt_hdrs(void)
     if (count != qt_hdr.n_hdr)
         goto err_out;
 
-    count = fwrite(&(qt_hdr.offset[0]), sizeof (long), qt_hdr.n_hdr, ofp);
+    count = fwrite(&(qt_hdr.offset[0]), sizeof (int), qt_hdr.n_hdr, ofp);
     if (count != qt_hdr.n_hdr)
         goto err_out;
 #ifdef DEBUG
     for (i = 0; i < qt_hdr.n_hdr; i++)
-        fprintf(stderr, "%c @ %ld, ", qt_hdr.id[i], qt_hdr.offset[i]);
+        fprintf(stderr, "%c @ %d, ", qt_hdr.id[i], qt_hdr.offset[i]);
 
     fprintf(stderr, "\n");
 #endif
@@ -921,7 +921,7 @@ put_qt_hdrs(void)
             int j;
 
             for (j = 0; j < msg_hdr[i].n_msg; j++)
-                fprintf(stderr, "msg %d @ %ld (%ld)\n",
+                fprintf(stderr, "msg %d @ %d (%d)\n",
                         msg_hdr[i].qt_msg[j].msgnum,
                         msg_hdr[i].qt_msg[j].offset, msg_hdr[i].qt_msg[j].size);
         }

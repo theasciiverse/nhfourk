@@ -9,10 +9,13 @@
 # define N_HDR   16     /* Maximum number of categories (i.e., num roles + 1) */
 # define LEN_HDR 3      /* Maximum length of a category name */
 
+/* quest.dat is written by makedefs on the build machine and read by the
+   game, which may be another platform: int, not long, so a file built on
+   64-bit Linux (8-byte long) reads the same on 64-bit Windows (4-byte) */
 struct qtmsg {
     int msgnum;
     char delivery;
-    long offset, size;
+    int offset, size;
 };
 
 # ifdef MAKEDEFS_C      /***** MAKEDEFS *****/
@@ -27,7 +30,7 @@ struct msghdr {
 struct qthdr {
     int n_hdr;
     char id[N_HDR][LEN_HDR];
-    long offset[N_HDR];
+    int offset[N_HDR];
 };
 
 /* Error message macros */

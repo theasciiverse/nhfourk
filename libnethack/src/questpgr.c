@@ -60,7 +60,7 @@ load_qtlist(void)
 {
     int n_classes, i;
     char qt_classes[N_HDR][LEN_HDR];
-    long qt_offsets[N_HDR];
+    int qt_offsets[N_HDR];
 
     msg_file = dlb_fopen(QTEXT_FILE, RDBMODE);
     if (!msg_file)
@@ -72,7 +72,7 @@ load_qtlist(void)
      */
     Fread(&n_classes, sizeof (int), 1, msg_file);
     Fread(&qt_classes[0][0], sizeof (char) * LEN_HDR, n_classes, msg_file);
-    Fread(qt_offsets, sizeof (long), n_classes, msg_file);
+    Fread(qt_offsets, sizeof (int), n_classes, msg_file);
 
     /*
      * Now construct the message lists for quick reference later

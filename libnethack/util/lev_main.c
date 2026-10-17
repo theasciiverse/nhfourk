@@ -863,7 +863,10 @@ write_common_data(int fd, int typ, lev_init * init, long flgs)
     c = typ;
     Write(fd, &c, sizeof (c));  /* 1 byte header */
     Write(fd, init, sizeof (lev_init));
-    Write(fd, &flgs, sizeof flgs);
+    /* as an int, which has the same size wherever the game runs; long is
+       8 bytes on 64-bit Linux and 4 on 64-bit Windows */
+    int flags32 = (int)flgs;
+    Write(fd, &flags32, sizeof flags32);
 
     len = (uchar) strlen(tmpmessage);
     Write(fd, &len, sizeof len);

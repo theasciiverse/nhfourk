@@ -1874,7 +1874,7 @@ static void
 load_common_data(struct level *lev, dlb * fd, int typ)
 {
     uchar n;
-    long lev_flags;
+    int lev_flags;      /* an int in the file too, see lev_main.c */
     int i;
 
     {
