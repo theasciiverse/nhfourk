@@ -222,24 +222,20 @@ init_game_paths(const char *argv0)
 
     /* If the build system gave us more specific directories, use them. */
     const char *temp_path;
-#if defined(UNIX)
     char statebuf[BUFSZ];
-#endif
 
     temp_path = aimake_get_option("gamesstatedir");
-#if defined(UNIX)
     /* An empty state directory (the GNUmakefile with an empty STATEDIR)
        means a single-player install: the score files, bones, logs and
        locks go to the player's own data folder, with the saved games and
        options, and nothing is written beside the executable. */
     if (temp_path && !*temp_path) {
         temp_path = NULL;
-        if (get_gamedir(CONFIG_DIR, statebuf)) {
+        if (get_gamedirA(CONFIG_DIR, statebuf)) {
             temp_path = statebuf;
             pathlist[LOCKPREFIX] = temp_path;
         }
     }
-#endif
     if (temp_path) {
         pathlist[BONESPREFIX] = temp_path;
         pathlist[SCOREPREFIX] = temp_path;

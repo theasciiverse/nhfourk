@@ -55,7 +55,7 @@ sendmail(void)
     if (!msg[0] || msg[0] == '\033')
         return;
 
-    mb = fopen(box, "a");
+    mb = (fopen)(box, "a");     /* the C library's, not the wide one */
     if (!mb) {
         curses_print_message(msgc_cancelled,
                              "Error sending mail.");

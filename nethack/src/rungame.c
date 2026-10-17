@@ -65,10 +65,10 @@ get_gamedir(enum game_dirs dirtype, wchar_t *buf)
     }
 
     if (!override_userdir)
-        snwprintf(nhPath, MAX_PATH, L"%s\\NetHackFourk", appPath);
+        snwprintf(nhPath, MAX_PATH, L"%ls\\NetHackFourk", appPath);
     _wmkdir(nhPath);
 
-    snwprintf(buf, BUFSZ, L"%s%s", nhPath, subdir);
+    snwprintf(buf, BUFSZ, L"%ls%ls", nhPath, subdir);
     _wmkdir(buf);
 
     return TRUE;
@@ -633,7 +633,7 @@ list_gamefiles(wchar_t * dir, int *count)
             find_data[*count].nFileSizeLow < 64)
             continue;   /* too small to be valid */
 
-        _snwprintf(fullname, 1024, L"%s%s", dir, find_data[*count].cFileName);
+        _snwprintf(fullname, 1024, L"%ls%ls", dir, find_data[*count].cFileName);
         fd = _wopen(fullname, O_RDWR, _S_IREAD | _S_IWRITE);
         if (fd == -1)
             continue;
@@ -655,7 +655,7 @@ list_gamefiles(wchar_t * dir, int *count)
 
     filenames = malloc(*count * sizeof (wchar_t *));
     for (i = 0; i < *count; i++) {
-        _snwprintf(fullname, 1024, L"%s%s", dir, find_data[i].cFileName);
+        _snwprintf(fullname, 1024, L"%ls%ls", dir, find_data[i].cFileName);
         filenames[i] = _wcsdup(fullname);
     }
     free(find_data);
