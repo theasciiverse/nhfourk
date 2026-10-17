@@ -24,8 +24,8 @@ install: all
 	install -m 644 tilesets/dat/textascii.nh4ct $(DESTDIR)$(DATADIR)/textascii.nh4ct
 	install -m 644 tilesets/dat/textunicode.nh4ct $(DESTDIR)$(DATADIR)/textunicode.nh4ct
 
-CFLAGS = -g -O2
-CXXFLAGS = -g -O2
+CFLAGS ?= -g -O2
+CXXFLAGS ?= -g -O2
 
 CFLAGS += --std=c11 -DAIMAKE_NORETURN=_Noreturn
 
@@ -34,6 +34,12 @@ ifeq ($(shell uname), Linux)
 	CPPFLAGS += -DAIMAKE_BUILDOS_linux
 	CPPFLAGS += -D_XOPEN_SOURCE=700
 	CPPFLAGS += -D_REENTRANT
+else ifeq ($(shell uname), Darwin)
+	CPPFLAGS += -DAIMAKE_BUILDOS_darwin
+	CPPFLAGS += -D_XOPEN_SOURCE=700
+	CPPFLAGS += -D_DARWIN_C_SOURCE
+	CPPFLAGS += -D_REENTRANT
+	EXTRAS = -pthread
 else
 	CPPFLAGS += -DAIMAKE_BUILDOS_freebsd
 	EXTRAS =
@@ -56,7 +62,7 @@ CPPFLAGS += -Ilibuncursed/include
 # nethack: everything but netgame and netplay
 GAME_O = $(addprefix nethack/src/,brandings.o color.o dialog.o extrawin.o gameover.o getline.o keymap.o mail.o main.o map.o menu.o messages.o motd.o options.o outchars.o playerselect.o replay.o rungame.o sidebar.o status.o topten.o windows.o)
 # libnethack: everything plus readonly
-GAME_O += $(addprefix libnethack/src/,allmain.o apply.o artifact.o attrib.o ball.o bones.o botl.o cmd.o dbridge.o decl.o detect.o dig.o display.o dlb.o do.o do_name.o do_wear.o dog.o dogmove.o dokick.o dothrow.o drawing.o dump.o dungeon.o eat.o end.o engrave.o exper.o explode.o extralev.o files.o fountain.o hack.o history.o invent.o level.o light.o localtime.o lock.o log.o mail.o makemon.o mcastu.o memfile.o messages.o mhitm.o mhitq.o mhitu.o minion.o mklev.o mkmap.o mkmaze.o mkobj.o mkroom.o mon.o mondata.o monmove.o monst.o mplayer.o mthrowu.o muse.o music.o newrng.o o_init.o objects.o objnam.o options.o pager.o pickup.o pline.o polyself.o potion.o pray.o priest.o prop.o quest.o questpgr.o read.o readonly.o rect.o region.o restore.o role.o rumors.o save.o shk.o shknam.o sit.o sounds.o sp_lev.o spell.o steal.o steed.o symclass.o teleport.o timeout.o topten.o track.o trap.o u_init.o uhitm.o vault.o version.o vision.o weapon.o were.o wield.o windows.o wizard.o worm.o worn.o write.o zap.o)
+GAME_O += $(addprefix libnethack/src/,achieve.o allmain.o apply.o artifact.o attrib.o ball.o bones.o botl.o cmd.o dbridge.o decl.o detect.o dig.o display.o dlb.o do.o do_name.o do_wear.o dog.o dogmove.o dokick.o dothrow.o drawing.o dump.o dungeon.o eat.o end.o engrave.o exper.o explode.o extralev.o files.o fountain.o hack.o history.o invent.o level.o light.o livelog.o localtime.o lock.o log.o mail.o makemon.o mcastu.o memfile.o messages.o mhitm.o mhitq.o mhitu.o minion.o mkaiscav.o mklev.o mkmap.o mkmaze.o mkobj.o mkroom.o mon.o mondata.o monmove.o monst.o mplayer.o mthrowu.o muse.o music.o newrng.o o_init.o objects.o objnam.o options.o pager.o pickup.o pline.o polyself.o potion.o pray.o priest.o prop.o quest.o questpgr.o read.o readonly.o rect.o region.o restore.o role.o rumors.o save.o shk.o shknam.o sit.o sounds.o sp_lev.o spell.o spoiler.o steal.o steed.o symclass.o teleport.o timeout.o topten.o track.o trap.o u_init.o uhitm.o vault.o version.o vision.o weapon.o were.o wield.o windows.o wizard.o worm.o worn.o write.o zap.o)
 # libnethack_common: everything but netconnect
 GAME_O += $(addprefix libnethack_common/src/,common_options.o hacklib.o mail.o menulist.o trietable.o utf8conv.o xmalloc.o)
 GAME_O += tilesets/src/tilesequence.o
@@ -232,24 +238,20 @@ libnethack/dat/rumors: libnethack/util/makedefs libnethack/dat/rumors.tru libnet
 	$< -r $> $@
 clean:: ; rm -f libnethack/dat/rumors
 
-libnethack/dat/oracles: libnethack/util/makedefs libnethack/dat/oracles.txt
-	$< -h $> $@
-clean:: ; rm -f libnethack/dat/oracles
-
 
 libnethack/dat/dungeon: libnethack/util/dgn_comp libnethack/dat/dungeon.pdf
 	$< < $> > $@
 clean:: ; rm -f libnethack/dat/dungeon
 
 
-DESFILES = Arch.des Barb.des Caveman.des Healer.des Knight.des Monk.des Priest.des Ranger.des Rogue.des Samurai.des Tourist.des Valkyrie.des Wizard.des bigroom.des castle.des endgame.des gehennom.des knox.des medusa.des mines.des oracle.des sokoban.des tower.des yendor.des
+DESFILES = $(notdir $(wildcard libnethack/dat/*.des))
 TAGFILES = $(DESFILES:%.des=libnethack/dat/%.tag)
 
 $(TAGFILES): libnethack/dat/%.tag: libnethack/util/lev_comp libnethack/dat/%.des
 	cd libnethack/dat && ../util/lev_comp $*.des && touch $*.tag
 clean:: ; rm -f $(TAGFILES) libnethack/dat/*.lev
 
-DATFILES = data dungeon history oracles quest.dat rumors
+DATFILES = data dungeon history quest.dat rumors
 
 libnethack/dat/nhdat: libnethack/util/dlb $(addprefix libnethack/dat/,$(DATFILES)) $(TAGFILES)
 	cd libnethack/dat && ../util/dlb cf nhdat $(DATFILES) *.lev
