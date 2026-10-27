@@ -108,3 +108,9 @@ can.
   earned in play, by upstream's design (`doc/changelog-fourk.txt`).
 - The network client and the server are not built (no "connect to
   server" entry in the main menu).
+
+## Ours
+
+- **How to play it, at the top of README.** A short note on installing and
+  starting it with av, or from a release archive; the original text follows
+  unchanged.
